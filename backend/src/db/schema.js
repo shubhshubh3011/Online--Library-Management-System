@@ -1,5 +1,13 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index, serial, integer } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  index,
+  serial,
+  integer,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -99,4 +107,21 @@ export const books = pgTable("books", {
   isbn: text("isbn").notNull().unique(),
   quantity: integer("quantity").notNull(),
   publishedYear: integer("published_year"),
+});
+
+export const borrow = pgTable("borrow", {
+  id: serial("id").primaryKey(),
+
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+
+  bookId: integer("book_id")
+    .notNull()
+    .references(() => books.id, { onDelete: "cascade" }),
+
+  borrowedAt: timestamp("borrowed_at").defaultNow().notNull(),
+  dueDate: timestamp("due_date").notNull(),
+
+  returnedAt: timestamp("returned_at"), // null = not returned
 });
