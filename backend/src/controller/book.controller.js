@@ -2,8 +2,7 @@ import { db } from "../db/db.js";
 import { books } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 
-
-export const addBook = async (req, res) => {
+export const addBook = async (req, res, next) => {
   try {
     const { title, author, isbn, quantity, publishedYear } = req.body;
 
@@ -45,9 +44,26 @@ export const addBook = async (req, res) => {
       message: "Book added successfully",
       data: newBook[0],
     });
-
   } catch (error) {
     console.error("Error adding book:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+
+export const getAllBooks = async (req, res, next) => {
+  try {
+    const allBooks = await db.select().from(books);
+
+    res.status(200).json({
+      success: true,
+      count: allBooks.length,
+      data: allBooks,
+    });
+  } catch (error) {
+    console.error("Error fetching books:", error);
     res.status(500).json({
       success: false,
       message: "Server Error",
