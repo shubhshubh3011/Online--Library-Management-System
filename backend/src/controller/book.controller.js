@@ -70,3 +70,40 @@ export const getAllBooks = async (req, res, next) => {
     });
   }
 };
+
+export const deleteBook = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Check if book exists
+    const existingBook = await db
+      .select()
+      .from(books)
+      .where(eq(books.id, id));
+
+    if (existingBook.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Book not found",
+      });
+    }
+
+    // Delete book
+    const deletedBook = await db
+      .delete(books)
+      .where(eq(books.id, id))
+      .returning();
+
+    res.status(200).json({
+      success: true,
+      message: "Book deleted successfully",
+      data: deletedBook[0],
+    });
+  } catch (error) {
+    console.error("Error deleting book:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};

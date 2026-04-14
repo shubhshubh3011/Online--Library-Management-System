@@ -4,8 +4,18 @@ import { auth } from "./auth.js";
 import dotenv from "dotenv";
 import booksRouter from "./src/routes/books.routes.js";
 import borrowRouter from "./src/routes/borrow.routes.js";
+import cors from "cors"
+
+
 
 const app = e();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173", // your frontend URL
+    credentials: true,
+  })
+);
 
 dotenv.config();
 

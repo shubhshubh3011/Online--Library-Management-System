@@ -118,3 +118,49 @@ export const returnBook = async (req, res) => {
     });
   }
 };
+
+export const getUserBooks = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    const userBooks = await db
+      .select({
+        borrowId: borrow.id,
+        userId: borrow.userId,
+
+        // borrow info (CORRECT NAMES)
+        borrowedAt: borrow.borrowedAt,
+        dueDate: borrow.dueDate,
+        returnedAt: borrow.returnedAt,
+
+        // book info
+        bookId: books.id,
+        title: books.title,
+        author: books.author,
+        isbn: books.isbn,
+        quantity: books.quantity,
+      })
+      .from(borrow)
+      .innerJoin(books, eq(borrow.bookId, books.id))
+      .where(eq(borrow.userId, userId));
+
+    return res.status(200).json({
+      success: true,
+      count: userBooks.length,
+      data: userBooks,
+    });
+  } catch (error) {
+    console.error("Error fetching user books:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
